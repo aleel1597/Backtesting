@@ -11,7 +11,12 @@ class SmaCross(bt.SignalStrategy):
     def __init__(self):
         sma1, sma2 = bt.ind.EMA(period=10), bt.ind.EMA(period=30)
         crossover = bt.ind.CrossOver(sma1, sma2)
-        self.signal_add(bt.SIGNAL_LONG, crossover)
+        EMA50 = bt.ind.EMA(period=50)
+        EMA200 = bt.ind.EMA(period = 50)
+        RSI14 = bt.ind.RSI_SMA(self.data.close, period=14)
+
+        self.signal_add(bt.SIGNAL_LONG, (self.data.close - EMA200 ) < 0)
+        self.signal_add(bt.SIGNAL_LONGEXIT_ANY, RSI14 > 70)
 
 cerebro = bt.Cerebro()
 cerebro.addstrategy(SmaCross)
@@ -28,9 +33,9 @@ cerebro.addsizer(bt.sizers.PercentSizer, percents=90)
 
 DataFactory = store.getdata # or use alpaca_backtrader_api.AlpacaData
 data0 = DataFactory(
-    dataname='MSFT',
+    dataname='SPY',
     timeframe=bt.TimeFrame.Days,
-    fromdate=pd.Timestamp('2018-2-1'),
+    fromdate=pd.Timestamp('2018-1-1'),
     todate=pd.Timestamp('2019-12-15'),
     historical=True)
 cerebro.adddata(data0)
